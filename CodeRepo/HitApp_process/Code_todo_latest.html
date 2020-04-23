@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Minimal set of styles to make rendered HTML look better than default. */
+        body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; font-size: 14px; line-height: 1.42857143; color: #333; background-color: #fff; }
+        code { font-family: Menlo, Monaco, Consolas, "Courier New", monospace; }
+        table { border-collapse: collapse; }
+        table, th, td { border: 1px solid gray; }
+        td, th { padding: 3px; }
+        th { vertical-align: middle; text-align: center; }
+
+        input, button, select, textarea { font-family: inherit; font-size: inherit; line-height: inherit; }
+        a { color: #337ab7; }
+        a:hover, a:focus { color: #23527c; text-decoration: underline; }
+
+        img { vertical-align: middle; }
+        
+        span.key {
+            font-size: xx-small;
+            color: #aaa;
+            margin-right: 3px;
+        }
+
+        div.word-text {          
+            width: 500px;
+            display: inline-block;            
+            margin-bottom: 20px;
+            text-align: left;
+            font-weight: bold;
+            
+        }
+
+
+        div.word:nth-child(odd) {
+            background: #F3F3F3;
+                  
+        }
+
+        div.word:hover {
+            background: #EEE;
+        
+        }
+
+        input[type='radio']:hover {
+            background: #EEE;
+        }
+
+        input[type='radio']:checked + span {
+            background: #9CC3FF;
+        }
+
+        #wordsAndCategories {
+            margin-bottom: 10px;
+        }
+</style>
+
+
+    <!-- Only files from https://ajax.aspnetcdn.com CDN are allowed. -->
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    
+    <script type="text/javascript">
+        // Callback functions. These are called from UHRS onto your hitapp.
+        //
+        function xPlate_SubmitAudit() {
+            if (document.getElementById('xPlate_audit_comment').value == "") {
+                alert("Please provide your comment first.");
+                return;
+            }
+            top.xPlate.saveAndForward();
+        };
+
+        // Returns true if key is pressed in a text-input field. Hit app should allow typing text in
+        // text inputs and don't handle these keys as hotkeys.
+        function isEventTargetInput(event) {
+            if (!event) {
+                event = window.event;
+            }
+            
+            if (!event) {
+                return true;
+            }
+            
+            var eventPathIsInput = event.path
+                && event.path.length > 0
+                && ($(event.path[0]).is("textarea") || $(event.path[0]).is("input:text"));
+
+            var eventTargetIsInput = event.target
+                && ($(event.target).is("textarea") || $(event.target).is("input:text"));
+
+            if (eventPathIsInput || eventTargetIsInput) {
+                return true;
+            }
+        }
+
+        function onKeyDown(e) {
+            if (isEventTargetInput(e)) {
+                return;
+            }
+            
+            var key = (window.event) ? event.key : e.key;
+            var element = $("input[data-hotkey='" + key + "']");
+            if (element.length) {
+                element[0].click();
+                e.preventDefault();
+                e.stopPropagation();
+                return
+            }
+        }
+
+        var wordsArray = [];
+
+        // isFirstLoad = true for the initial loading of this Hit.
+        // isFirstLoad = false if the Hit is being redisplayed to the judge (such as when review page is used, or RTAs being shown).
+        function xPlate_OnLoad(isFirstLoad) {
+            document.onkeydown = onKeyDown;
+
+            // Categories can be dynamic and different for each element. This can be a part of input JSON.
+            var categoriesArray = ['Helpful', 'Maybe Helpful', 'Not Helpful'];
+            wordsArray = JSON.parse(top.xPlate.getHitData('words_json'));
+
+            var divWithControls = $('#wordsAndCategories');
+
+            // Declarative way of generating is used using jquery to show possibility.
+            // It's better to use more comprehencive web frameworks for dynamic behavior.
+
+            // It's important to not to concatenate strings to avoid attacks by showing unescaped text.
+            wordsArray.forEach(function (word, i) {
+                var wordElement = $('<div class="word">');
+                wordElement.append($('<div class="word-text">').text(word));
+                categoriesArray.forEach(function (category) {
+                    var radio = $('<input />', {
+                            'data-word-index': i,
+                            'data-word': word,
+                            type : 'radio',
+                            name : 'group-' + i, // Same name per group.
+                            value : category
+                        });
+                    wordElement.append($("<label />", { append: [radio, $('<span>').text(category)] }));
+                });
+
+                divWithControls.append(wordElement);
+            });
+
+            window.focus();
+        }
+
+        function onSubmit() {
+            // Since number of words is dynamic, put all judgments as a JSON in a single "column".
+            var judgmentsObject = {};
+            $("input[name^='group-']:checked").each(function(index, element) {
+                var $element = $(element);
+                var judgmentKey = $element.data('word-index');
+                var judgmentWord = $element.data('word');
+                var judgmentValue = $element.val();
+                
+                var wordLabelPair = {};
+                wordLabelPair[judgmentWord] = judgmentValue;
+                judgmentsObject[judgmentKey] = wordLabelPair;
+            });
+
+            
+            top.xPlate.setJudgmentData('sent_json', JSON.stringify(judgmentsObject));
+			
+
+            /*
+                // Judgment produced:
+                {
+                    "0": {
+                        "this": "Noun"
+                    },
+                    "1": {
+                        "was": "Verb"
+                    },
+                    "2": {
+                        "the": "Adjective"
+                    },
+                    .....
+                }
+
+            */
+
+            // There's no obvious choice for JDI because of multiple, dynamic judgments per hit.
+            // Custom correctness should be used to check for judgments validity.
+            //top.xPlate.setJudgmentDataInt(0);
+            //top.xPlate.saveAndForward();
+
+            top.xPlate.setJudgmentData("to_do_summary", $('#summary').val());
+            top.xPlate.setJudgmentData("task-category", $("input[name='task-category-radio']:checked").val());
+            top.xPlate.setJudgmentData("subject-useful", $("input[name='subject-radio']:checked").val());
+            top.xPlate.saveAndForward();
+        };
+
+        function xPlate_Validate() {
+            // Called on save to determine if save can be processed.
+            // Check that number of selected elements equal to number of words.
+            // return $('input:radio:checked').length === (wordsArray.length);
+            
+            var isInputValid = $("input[name='task-category-radio']:checked").val() && $("input[name='subject-radio']:checked").val()
+            && $("input[name^='group-']:checked").length === (wordsArray.length) && $('#summary').val() != "";
+            if (!isInputValid) {
+                alert("NOT ALL data provided ! Mark all radio buttons and Fill in Text in To-do Item.");
+            }
+            return isInputValid;
+        };
+</script>
+
+</head>
+<body>
+    <h4> To-Do Sentence : <mark style="background-color:yellow;">{HTML(highlight)}</mark></h4>	
+
+    <h4> <span style="color:red"><b>What is the category of the To-Do Sentence ?</b> </span>
+        <label><input type="radio" name="task-category-radio", value="Un">Unspecified</label>
+        <label><input type="radio" name="task-category-radio", value="Partial">Partially Specified</label>
+        <label><input type="radio" name="task-category-radio", value="Full">Fully Specified</label>
+    </h4>
+    <h4>Previous Email :</h4> 
+    <h5 style="background-color:#E0FFFF; border-color:#E0FFFF; border:1px; border-style:solid; padding: 1em;">
+        <i>From</i> :    {HTML(reply_to_sent_from)}<br>
+        <i>To</i>:       {HTML(reply_to_sent_to)}<br>
+        <i>Subject</i>:  {HTML(reply_to_subject)}<br><br>        
+        {HTML(reply_to_body)}        
+    </h5>
+    
+    <h4>Current Email : </h4>     
+    <h5 style="background-color:#E0FFFF; border-color:#E0FFFF; border:1px; border-style:solid; padding: 1em;">
+        <i>From</i> :    {HTML(current_sent_from)}<br>
+        <i>To</i>:       {HTML(current_sent_to)}<br>
+        <i>Subject</i>:  {HTML(current_subject)}<br><br>
+        
+        {HTML(current_body_before_high)}<mark style="background-color:yellow;"> {HTML(highlight)}</mark> {HTML(current_body_after_high)}     
+    </h5>
+
+        
+	<label><span style="color:Red;"><b>Write a To-Do Item for the To-Do Sentence : 
+        <br> <mark style="background-color:yellow;">{HTML(highlight)}</mark> <br>
+         </b> </span> <input type="text" size="150" id="summary"/></label>
+	<br>
+    <h4> <span style="color:red"><b>Is the Subject of the Current Email related to the To-do Item?</b> </span> 
+        <mark style="background-color:cyan;">{HTML(current_subject)}</mark>
+        <label><input type="radio" name="subject-radio", value="Yes">Yes</label>
+        <label><input type="radio" name="subject-radio", value="No">No</label>
+    </h4>
+    
+	<h4 style="color:Red;">For each email sentence below, mark whether it was "Helpful", "Maybe Helpful" or "Not Helpful to write the To-Do Item :</h4>
+    <div id="wordsAndCategories"></div>
+    <input onclick="onSubmit();" value="Submit" type="button" class="button"  data-hotkey="Enter" />
+</body>
+</html>

@@ -1,0 +1,33 @@
+save_checkpoint_steps: 500
+keep_checkpoint: 6
+param_init_glorot: 'true'
+seed: 0
+early_stopping: 5
+report_every: 500
+valid_steps: 500
+train_steps: 100000
+
+copy_attn: 'true'
+copy_attn_force: 'true'
+dropout: 0.5
+attention_dropout: 0.5
+
+world_size: 1
+gpu_ranks:
+- 0
+
+data: processed_final/avocado.bert_tokenized.separate.copy
+save_model: checkpoints_Orig_final/avocado.bert_tokenized/291/model
+pre_word_vecs_enc: processed_final/avocado.bert_tokenized.separate.copy.embeddings.d300.enc.pt
+pre_word_vecs_dec: processed_final/avocado.bert_tokenized.separate.copy.embeddings.d300.dec.pt
+word_vec_size: 300
+rnn_size: 128
+layers: 1
+rnn_type: LSTM
+encoder_type: rnn
+
+batch_size: 128
+optim: adagrad
+learning_rate: 0.15
+adagrad_accumulator_init: 0.1
+max_grad_norm: 2.0

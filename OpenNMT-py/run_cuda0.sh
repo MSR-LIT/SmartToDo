@@ -1,0 +1,4 @@
+CUDA_VISIBLE_DEVICES=0 python train.py --config "Orig_config_final/spacy/config-260.yml"
+CUDA_VISIBLE_DEVICES=0 python translate.py -model checkpoints_Orig_final/avocado.spacy_tokenized/260/model_step_best.pt -src Orig_seq2seq_final_data/avocado.spacy_tokenized/src-valid.txt -output logs_Orig_final/avocado.spacy_tokenized/pred-260-valid.txt -replace_unk -verbose --tgt Orig_seq2seq_final_data/avocado.spacy_tokenized/tgt-valid.txt --max_length 50 --gpu 0  > logs_Orig_final/avocado.spacy_tokenized/raw_logs-260-valid.txt
+CUDA_VISIBLE_DEVICES=0 python translate.py -model checkpoints_Orig_final/avocado.spacy_tokenized/260/model_step_best.pt -src Orig_seq2seq_final_data/avocado.spacy_tokenized/src-test.txt -output logs_Orig_final/avocado.spacy_tokenized/pred-260-test.txt -replace_unk -verbose --tgt Orig_seq2seq_final_data/avocado.spacy_tokenized/tgt-test.txt --max_length 50 --gpu 0  > logs_Orig_final/avocado.spacy_tokenized/raw_logs-260-test.txt
+
