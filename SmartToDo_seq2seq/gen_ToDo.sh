@@ -1,0 +1,7 @@
+#!/bin/bash
+python preprocess.py -train_src ../data/SmartToDo_seq2seq_data/src-train.txt -train_tgt ../data/SmartToDo_seq2seq_data/tgt-train.txt -valid_src ../data/SmartToDo_seq2seq_data/src-valid.txt -valid_tgt ../data/SmartToDo_seq2seq_data/tgt-valid.txt -save_data processed/avocado.spacy_tokenized.separate.copy --src_seq_length 256 --src_words_min_frequency 2 --tgt_words_min_frequency 2 --dynamic_dict
+PYTHONPATH='.' python ./tools/embeddings_to_torch.py -emb_file_enc "./glove_dir/glove.6B/glove.6B.100d.txt" -emb_file_dec "./glove_dir/glove.6B/glove.6B.100d.txt" -dict_file "processed/avocado.spacy_tokenized.separate.copy.vocab.pt" -output_file "processed/avocado.spacy_tokenized.separate.copy.embeddings.d100"
+CUDA_VISIBLE_DEVICES=0 python train.py --config "config/config-101.yml"
+CUDA_VISIBLE_DEVICES=0 python translate.py -model checkpoints/101/model_step_best.pt -src ../data/SmartToDo_seq2seq_data/src-valid.txt -output logs/pred-101-valid.txt -replace_unk -verbose --tgt ../data/SmartToDo_seq2seq_data/tgt-valid.txt --max_length 50 --gpu 0 > logs/raw_logs-101-valid.txt
+CUDA_VISIBLE_DEVICES=0 python translate.py -model checkpoints/101/model_step_best.pt -src ../data/SmartToDo_seq2seq_data/src-test.txt -output logs/pred-101-test.txt -replace_unk -verbose --tgt ../data/SmartToDo_seq2seq_data/tgt-test.txt --max_length 50 --gpu 0 > logs/raw_logs-101-test.txt
+python compute_metrics.py
