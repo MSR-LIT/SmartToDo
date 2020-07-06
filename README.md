@@ -56,7 +56,7 @@ In addition to training your own model from scratch, a pre-trained model checkpo
 
 ## Acknowledgment
 
-Our seq2seq code is heavily based on [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py). We thank that authors for open-sourcing the NMT code.
+Our seq2seq code is heavily based on [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py). We thank the authors for open-sourcing the NMT code.
 
 ## Feedback
 
