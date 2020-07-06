@@ -54,6 +54,10 @@ This will create vocaulary for training, train the model and generate To-Do item
 
 In addition to training your own model from scratch, a pre-trained model checkpoint can also be downloaded from the Google Drive link (https://drive.google.com/drive/folders/1r8cLNSeU9l_oTBcaEeze52p0candbTYh?usp=sharing). 
 
+## Acknowledgment
+
+Our seq2seq code is heavily based on [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py). We thank that authors for open-sourcing the NMT code.
+
 ## Feedback
 
 Please feel free to email any feedback and/or suggestions about the code to sudipm@uw.edu or submukhe@microsoft.com.
