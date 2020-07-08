@@ -19,8 +19,10 @@ The dependency packages are provided in [requirements.txt](./requirements.txt). 
 
 ```bash
 ~/SmartToDo$ conda create --name SmartToDo python=3.6
-~/SmartToDo$ cd src
-~/SmartToDo/src$ ./install.sh
+~/SmartToDo$ conda activate SmartToDo
+(SmartToDo)~/SmartToDo$ cd src
+(SmartToDo)~/SmartToDo/src$ chmod +x *.sh
+(SmartToDo)~/SmartToDo/src$ ./install.sh
 ```
 The install.sh bash script will install all required packages and also the model for Spacy. 
 
@@ -32,7 +34,7 @@ As per the License Agreements of Avocado, "Users are required to sign two licens
 Download the Avocado dataset from [Avocado Research Email Collection](https://catalog.ldc.upenn.edu/LDC2015T03). Ensure that this is placed in the folder ./data with path to text files as './data/Avocado/text/\*\*\*.zip'. Then run the following script:
 
 ```bash
-~/SmartToDo/src$ ./decode_data.sh
+(SmartToDo)~/SmartToDo/src$ ./decode_data.sh
 ```
 This will create vocabulary from Avocado corpus and decode the dataset. The decoded dataset will be saved in the folder './data/Annotations'. This code takes around 1 hour 10 minutes to run.
 
@@ -45,7 +47,7 @@ The code below assumes that a tsv field is created by the user containing the ne
 The ranked sentences for the data instances are provided in the file [sent_ranked_fasttext.txt](./data/Gold_SmartToDo_seq2seq_data/sent_ranked_fasttext.txt). Now run the following code snippet to generate the input/output for Seq2Seq model:
 
 ```bash
-~/SmartToDo/src$ ./gen_seq2seq_data.sh
+(SmartToDo)~/SmartToDo/src$ ./gen_seq2seq_data.sh
 ```
 
 ## To-Do item generation
@@ -53,8 +55,9 @@ The ranked sentences for the data instances are provided in the file [sent_ranke
 Download the pretrained Glove embeddings from [glove.6B.zip](http://nlp.stanford.edu/data/glove.6B.zip). Extract it and place it in the folder './SmartToDo_seq2seq/glove_dir/'. Ensure that your embeddings have the path as './SmartToDo_seq2seq/glove_dir/glove.6B/glove.6B.100d.txt'. Then run the following:
 
 ```bash
-~/SmartToDo/src$ cd SmartToDo_seq2seq
-~/SmartToDo/src/SmartToDo_seq2seq$ ./gen_ToDo.sh
+(SmartToDo)~/SmartToDo/src$ cd SmartToDo_seq2seq
+(SmartToDo)~/SmartToDo/src$ chmod +x *.sh
+(SmartToDo)~/SmartToDo/src/SmartToDo_seq2seq$ ./gen_ToDo.sh
 ```
 This will create vocaulary for training, train the model and generate To-Do items on the validation and test set. The performance metrics will also be computed and printed on screen.
 
