@@ -52,7 +52,7 @@ The ranked sentences for the data instances are provided in the file [sent_ranke
 
 ## To-Do item generation
 
-Download the pretrained Glove embeddings from [glove.6B.zip](http://nlp.stanford.edu/data/glove.6B.zip). Extract it and place it in the folder './SmartToDo_seq2seq/glove_dir/'. Ensure that your embeddings have the path as './SmartToDo_seq2seq/glove_dir/glove.6B/glove.6B.100d.txt'. Then run the following:
+Download the pretrained Glove embeddings from [glove.6B.zip](http://nlp.stanford.edu/data/glove.6B.zip). Extract it and place it in the folder './src/SmartToDo_seq2seq/glove_dir/'. Ensure that your embeddings have the path as './SmartToDo_seq2seq/glove_dir/glove.6B/glove.6B.100d.txt'. Then run the following:
 
 ```bash
 (SmartToDo)~/SmartToDo/src$ cd SmartToDo_seq2seq
