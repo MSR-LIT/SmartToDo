@@ -78,6 +78,7 @@ def gen_decode_token_span_dataset():
 
     PATH_TO_BACK_VOCAB = '../data/back_vocab.pkl'
 
+    print('Decoding data ...')
     with open(PATH_TO_BACK_VOCAB, 'rb') as handle:
         back_vocab = pickle.load(handle)
 
