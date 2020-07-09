@@ -21,6 +21,7 @@ def gen_encode_token_span_dataset():
     with open(PATH_TO_FWD_VOCAB, 'rb') as handle:
         fwd_vocab = pickle.load(handle)
 
+    print('Encoding data ...')
     with open(path_to_out, 'w', encoding='utf-8', newline='') as out_tsv_file, open(path_to_inp, 'r', encoding='utf-8') as inp_tsv_file:
 
         writer = csv.DictWriter(out_tsv_file, fieldnames=fieldnames, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
@@ -117,8 +118,8 @@ def gen_decode_token_span_dataset():
 
                 writer.writerow(val_dic)
 
-            except:
-                continue
+            except Exception as inst:
+                print('ERROR: {}'.format(inst))
 
 
 
