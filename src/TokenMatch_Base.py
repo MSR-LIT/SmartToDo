@@ -1,10 +1,11 @@
 import csv
 
+import pdb
 import token_span_util
 import encode_util
 import pickle
 
-def gen_encode_token_span_dataset():
+def gen_encode_token_span_dataset(dev = False):
 
     task_inp_file_name = 'SmartToDo_dataset'
     task_out_file_name = 'Spans_ToDo_dataset'
@@ -17,6 +18,7 @@ def gen_encode_token_span_dataset():
     fieldnames = ['UniqueID', 'data_index', 'current_id', 'highlight_start', 'highlight_end', 'to_do_summary']
 
     PATH_TO_FWD_VOCAB = '../data/fwd_vocab.pkl'
+    unk_set = set()
 
     with open(PATH_TO_FWD_VOCAB, 'rb') as handle:
         fwd_vocab = pickle.load(handle)
@@ -56,9 +58,25 @@ def gen_encode_token_span_dataset():
             val_dic['highlight_start'] = span_logs[data_index][0]
             val_dic['highlight_end'] = span_logs[data_index][1]
 
-            val_dic['to_do_summary'] = encode_util.encode_sent(summary, fwd_vocab)
+            if dev:
+                encoded_str = encode_util.encode_sent_dev(summary, fwd_vocab)
+                val_dic['to_do_summary'] = encoded_str
+                for tok in encoded_str.split():
+                    try:
+                        if tok[0] != '$' or tok[-1] != '$':
+                           unk_set.add(tok)
+                    except:
+                        pdb.set_trace()
+
+            else:
+                val_dic['to_do_summary'] = encode_util.encode_sent(summary, fwd_vocab)
 
             writer.writerow(val_dic)
+
+    if dev:
+        with open('../data/spell_correct_unk_set.txt', 'w') as funk:
+            for item in unk_set:
+                funk.write('{}\n'.format(item))
 
 
 def gen_decode_token_span_dataset():
@@ -127,7 +145,7 @@ def gen_decode_token_span_dataset():
 
 if __name__=='__main__':
 
-    #gen_encode_token_span_dataset()
+    #gen_encode_token_span_dataset(dev = False)
 
     gen_decode_token_span_dataset()
 

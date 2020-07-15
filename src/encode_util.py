@@ -5,6 +5,8 @@ import csv
 import json
 import ast
 import pdb
+from spellchecker import SpellChecker
+spell = SpellChecker()
 
 nlp = spacy.load("en_core_web_sm")
 PATH_TO_AVOCADO_TEXT = '../data/Avocado/text/'
@@ -41,6 +43,7 @@ def get_raw_corpus_text(email_id):
 
 def encode_sent_dev(sent, vocab):
 
+    sent = " ".join(sent.split())
     tokens = nlp(sent, disable=["ner", "parser", "tagger"])
 
     coded_tokens = []
@@ -51,8 +54,13 @@ def encode_sent_dev(sent, vocab):
         elif tok.lower() in vocab:
             coded_tokens.append(vocab[tok.lower()])
         else:
-            coded_tokens.append(tok)
-            # coded_tokens.append('UNK')
+            corrected_tok = spell.correction(tok)
+            if corrected_tok in vocab:
+                coded_tokens.append(vocab[corrected_tok])
+                print('Spell correct : {} -> {}'.format(tok, corrected_tok))
+            else:
+                coded_tokens.append(tok)
+                # coded_tokens.append('UNK')
     coded_str = " ".join(str(coded_tok) for coded_tok in coded_tokens)
     return coded_str
 
@@ -61,6 +69,7 @@ def encode_sent_dev(sent, vocab):
 
 def encode_sent(sent, vocab):
 
+    sent = " ".join(sent.split())
     tokens = nlp(sent, disable=["ner", "parser", "tagger"])
 
     coded_tokens = []
@@ -71,8 +80,12 @@ def encode_sent(sent, vocab):
         elif tok.lower() in vocab:
             coded_tokens.append(vocab[tok.lower()])
         else:
-            # coded_tokens.append(tok)
-            coded_tokens.append('UNK')
+            corrected_tok = spell.correction(tok)
+            if corrected_tok in vocab:
+                coded_tokens.append(vocab[corrected_tok])
+                print('Spell correct : {} -> {}'.format(tok, corrected_tok))
+            else:
+                coded_tokens.append('UNK')
     coded_str = " ".join(str(coded_tok) for coded_tok in coded_tokens)
     return coded_str
 
