@@ -10,6 +10,7 @@ spell = SpellChecker()
 
 nlp = spacy.load("en_core_web_sm")
 PATH_TO_AVOCADO_TEXT = '../data/Avocado/text/'
+PATH_TO_OOV_MAPPING = '../data/smarttodo_oov.xlsx'
 
 def get_raw_corpus_text(email_id):
 
@@ -71,6 +72,7 @@ def encode_sent(sent, vocab):
 
     sent = " ".join(sent.split())
     tokens = nlp(sent, disable=["ner", "parser", "tagger"])
+    oov_mapping = _get_oov_mapping()
 
     coded_tokens = []
     for tok in tokens:
@@ -84,6 +86,18 @@ def encode_sent(sent, vocab):
             if corrected_tok in vocab:
                 coded_tokens.append(vocab[corrected_tok])
                 print('Spell correct : {} -> {}'.format(tok, corrected_tok))
+            elif tok in oov_mapping:
+                corrected_tok = oov_mapping[tok]
+                corrected_tok_list = corrected_tok.split()
+                for corr_tok in corrected_tok_list:
+                    if corr_tok in vocab:
+                        coded_tokens.append(vocab[corr_tok])
+                    elif corr_tok.lower() in vocab:
+                        coded_tokens.append(vocab[corr_tok.lower()])
+                    elif corr_tok[0] == '#' and corr_tok[-1] == '#':
+                        coded_tokens.append(corr_tok)
+                    else:
+                        coded_tokens.append('UNK')
             else:
                 coded_tokens.append('UNK')
     coded_str = " ".join(str(coded_tok) for coded_tok in coded_tokens)
@@ -228,3 +242,17 @@ def encode_plain_text(finp, fout, vocab):
 
 def decode_plain_text(finp, fout, vocab):
     raise NotImplementedError
+
+
+def _get_oov_mapping():
+    import pandas as pd
+    oov = pd.read_excel(PATH_TO_OOV_MAPPING)
+    clean_oov = oov.loc[:, ['OOV', 'Merged']]
+    clean_oov = clean_oov.dropna()
+    oov_mapping = dict()
+    for index, row in clean_oov.iterrows():
+        oov_text = row['OOV']
+        merged_text = row['Merged']
+        merged_text = merged_text.replace('.', '')
+        oov_mapping[oov_text] = merged_text
+    return oov_mapping
